@@ -8,15 +8,15 @@ on:
       KERNEL_SOURCE:
         description: 'Kernel Source'
         required: true
-        default: 'https://github.com/Diva-Room/Miku_kernel_xiaomi_wayne'
+        default: 'https://github.com/raystef66/InfiniR_kernel_alioth.git'
       KERNEL_SOURCE_BRANCH:
         description: 'Branch'
         required: true
-        default: 'TDA'
+        default: '13.0-alioth'
       KERNEL_DEFCONFIG:
         description: 'Defconfig'
         required: true
-        default: 'vendor/wayne_defconfig'
+        default: 'vendor/alioth_defconfig'
       KERNEL_FILE:
         description: 'Your kernel out image name'
         required: true
@@ -44,6 +44,15 @@ on:
         required: false
         default: 'true'
         type: boolean
+      WITH_DTBO_IMAGE:
+
+        description: 'Include dtbo.img'
+
+        required: false
+
+        default: 'true'
+
+        type: boolean
 
 jobs:
   build:
@@ -53,7 +62,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Setup Configuration
       run: |
-        if [ $(cat config.env | grep "USE_CONFIG" | head -n 1 | cut -d "=" -f 2) = true ];then
+        if [ $(cat config.env | grep "USE_CONFIG" | head -n 1 | cut -d "=" -f 2) = true ]; then
             echo "KERNEL_SOURCE=$(cat config.env | grep "KERNEL_SOURCE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
             echo "KERNEL_SOURCE_BRANCH=$(cat config.env | grep "KERNEL_SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
             echo "KERNEL_DEFCONFIG=$(cat config.env | grep "KERNEL_DEFCONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
@@ -63,6 +72,7 @@ jobs:
             echo "DISABLE-LTO=$(cat config.env | grep "DISABLE-LTO" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
             echo "USE_KERNELSU=$(cat config.env | grep "USE_KERNELSU" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
             echo "USE_KPROBES=$(cat config.env | grep "USE_KPROBES" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+            echo "WITH_DTBO_IMAGE=$(cat config.env | grep "WITH_DTBO_IMAGE" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
         else
             echo "KERNEL_SOURCE=${{ github.event.inputs.KERNEL_SOURCE }}" >> $GITHUB_ENV
             echo "KERNEL_SOURCE_BRANCH=${{ github.event.inputs.KERNEL_SOURCE_BRANCH }}" >> $GITHUB_ENV
@@ -73,6 +83,7 @@ jobs:
             echo "DISABLE-LTO=${{ github.event.inputs.DISABLE-LTO }}" >> $GITHUB_ENV
             echo "USE_KERNELSU=${{ github.event.inputs.USE_KERNELSU }}" >> $GITHUB_ENV
             echo "USE_KPROBES=${{ github.event.inputs.USE_KPROBES }}" >> $GITHUB_ENV
+            echo "WITH_DTBO_IMAGE=${{ github.event.inputs.WITH_DTBO_IMAGE }}" >> $GITHUB_ENV
         fi
 
     - name: Setup build kernel environment
@@ -132,6 +143,9 @@ jobs:
         sed -i 's!block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;!block=auto;!g' AnyKernel3/anykernel.sh
         sed -i 's/is_slot_device=0;/is_slot_device=auto;/g' AnyKernel3/anykernel.sh
         cp android-kernel/out/arch/arm64/boot/${{ env.KERNEL_FILE }} AnyKernel3/
+        if [ $(cat config.env | grep "WITH_DTBO_IMAGE" | head -n 1 | cut -d "=" -f 2) = true ]; then
+            cp android-kernel/out/arch/arm64/boot/dtbo.img AnyKernel3/
+        fi
         rm -rf AnyKernel3/.git* AnyKernel3/README.md
 
     - name: Upload AnyKernel3
