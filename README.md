@@ -15,10 +15,12 @@
 
 ## 使用
 
-Fork 本仓库到你的储存库然后点击`Action`，在左侧可看见`Build Kernel Common`/`Build boot image`选项，点击选项会看见右边的大对话框的上面会有`Run workflows`，里面有需要你填写的配置，看下面的部分，了解如何填写。
+Fork 本仓库到你的储存库然后点击`Action`，在左侧可看见`Build Kernel Common`选项，点击选项会看见右边的大对话框的上面会有`Run workflows`，里面有需要你填写的配置，看下面的部分，了解如何填写。
 
 或者使用 config.env(设置 USE_CONFIG 为 true)，按照以下内容编辑 config.env 然后提交，按 Star 或者 Run workflows，这个功能是方便手机修改参数。
 
+
+-----------------
 ### Build Kernel
 
 编译成功后，会在`Action`上传 AnyKernel3，已经关闭设备检查，请在 Twrp 刷入
@@ -79,56 +81,17 @@ Fork 本仓库到你的储存库然后点击`Action`，在左侧可看见`Build 
 
 如果你的内核 Kprobes 工作正常这项改成 true 即可自动在 defconfig 注入参数
 
-### Build boot image
 
-编译成功后，会在`Action`上传 boot-su.img，使用 fastboot 刷入到手机
 
-#### Kernel Source
 
-填写你的内核仓库地址
 
-例如: https://github.com/Diva-Room/Miku_kernel_xiaomi_wayne
 
-#### Branch
 
-填写你的内核分支
 
-例如: TDA
 
-#### Kernel Build Config
 
-填写你的内核构建配置文件，需要直链
 
-例如: https://raw.githubusercontent.com/xiaoleGun/KernelSU_action/main/configs/build.config.wayne
 
-里面要改的不多，下面是 build config 和 Device Tree(设备树)里的 BoardConfig/BoardConfigCommon 的对照
-| build config | BoardConfig/BoardConfigCommon |
-| ------------------------- | ----------------------------- |
-| DEFCONFIG | TARGET_KERNEL_CONFIG |
-| BOOT_IMAGE_HEADER_VERSION | BOARD_BOOT_HEADER_VERSION |
-| BASE_ADDRESS | BOARD_KERNEL_BASE |
-| PAGE_SIZE | BOARD_KERNEL_PAGESIZE |
-| KERNEL_CMDLINE | BOARD_KERNEL_CMDLINE |
-| MKBOOTIMG_EXTRA_ARGS | BOARD_MKBOOTIMG_ARGS |
-| KERNEL_BINARY | BOARD_KERNEL_IMAGE_NAME |
-
-下面是一些 build config 里面的选项的用途
-| build config | 作用 |
-| --------------------- | -----------------------------------|
-| VENDOR_RAMDISK_BINARY | ramdisk 路径 |
-| ARCH | 架构 arm/arm64/x86_64 |
-| BUILD_BOOT_IMG | 为 1 时创建 boot.img |
-| SKIP_VENDOR_BOOT | 为 1 时跳过创建 vendor_boot |
-| FILES | 需要输出的文件 |
-| CLANG_VERSION | 我自定义的选项，用于定义 clang 版本 |
-
-剩下的就是杂七杂八的编译器需要，更多请参见[build/build.sh](https://android.googlesource.com/kernel/build/+/refs/heads/master-kernel-build-2022/build.sh)的注释
-
-#### Boot image to get ramdisk
-
-故名思义，提供一个可以正常开机的 boot 镜像，需要直链，最好是同一套内核源码以及与你当前系统同一套设备树从 aosp 构建出来的。ramdisk 里面包含分区表以及 init，没有的话可能会重启到 fastboot。
-
-例如: https://raw.githubusercontent.com/xiaoleGun/KernelSU_action/main/boot/boot-wayne-from-Miku-UI-latest.img
 
 ## 感谢
 
